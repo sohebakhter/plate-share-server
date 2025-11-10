@@ -58,6 +58,12 @@ async function run() {
       const result = await foodsCollection.findOne(query);
       res.send(result);
     });
+    /////////////////////////
+    app.get("/featured-foods", async (req, res) => {
+      const cursor = foodsCollection.find().sort({ foodQuantity: -1 }).limit(6);
+      const result = await cursor.toArray();
+      res.send(result);
+    });
 
     app.post("/add-food", async (req, res) => {
       const newFood = req.body;
@@ -68,7 +74,7 @@ async function run() {
     app.patch("/foods/:id", async (req, res) => {
       const id = req.params.id;
       const updatedFood = req.body;
-      console.log(updatedFood)
+      console.log(updatedFood);
       const query = { _id: new ObjectId(id) };
       const update = {
         $set: {
