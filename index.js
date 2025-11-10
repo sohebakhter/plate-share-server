@@ -28,24 +28,23 @@ async function run() {
     await client.connect();
     const db = client.db("plateShareDB");
     const foodsCollection = db.collection("foods");
+    const foodRequestsCollection = db.collection("foodRequests");
 
     app.get("/foods", async (req, res) => {
-      const status = req.query.food_status;
-
+      const status = req.query.status;
       const query = {};
       if (status) {
-        query.status = status;
+        query.food_status = status;
       }
       const cursor = foodsCollection.find(query);
       const result = await cursor.toArray();
       res.send(result);
     });
-    app.get("/foods", async (req, res) => {
-      const email = req.query.donorEmail;
-
+    app.get("/foods-manage", async (req, res) => {
+      const email = req.query.email;
       const query = {};
       if (email) {
-        query.email = email;
+        query.donorEmail = email;
       }
       const cursor = foodsCollection.find(query);
       const result = await cursor.toArray();
@@ -93,6 +92,13 @@ async function run() {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await foodsCollection.deleteOne(query);
+      res.send(result);
+    });
+
+    //foodRequests related apis
+    app.post("/foodRequests", (req, res) => {
+      const newRequest = req.body;
+      const result = foodRequestsCollection.insertOne(newRequest);
       res.send(result);
     });
 
