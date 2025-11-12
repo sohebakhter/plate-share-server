@@ -2,25 +2,25 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
-var admin = require("firebase-admin");
+// const admin = require("firebase-admin");
 const app = express();
 const port = process.env.PORT || 3000;
 
-var serviceAccount = require("./plateshare-firebase-admin-key.json");
+// const serviceAccount = require("./plateshare-firebase-admin-key.json");
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
+// admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount),
+// });
 
 //middleware
 app.use(cors());
 app.use(express.json());
 
-const verifyFirebaseToken = (req, res, next) => {
-  const authorization = req.headers.authorization;
-  console.log(authorization);
-  next();
-};
+// const verifyFirebaseToken = (req, res, next) => {
+//   const authorization = req.headers.authorization;
+//   console.log(authorization);
+//   next();
+// };
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@sohebcluster.mbyuxfx.mongodb.net/?appName=SohebCluster`;
 
@@ -38,7 +38,7 @@ app.get("/", (req, res) => {
 
 async function run() {
   try {
-    await client.connect();
+    // await client.connect();
     const db = client.db("plateShareDB");
     const foodsCollection = db.collection("foods");
     const foodRequestsCollection = db.collection("foodRequests");
@@ -113,7 +113,7 @@ async function run() {
       const { foodId } = req.params;
       const userEmail = req.query.email; // current logged-in user email
 
-      // first: find the food to verify the owner
+      // find the food to verify the owner
       const food = await foodsCollection.findOne({ _id: new ObjectId(foodId) });
 
       if (!food) {
@@ -171,7 +171,7 @@ async function run() {
       res.send({ success: true });
     });
 
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
