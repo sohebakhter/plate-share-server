@@ -16,6 +16,12 @@ admin.initializeApp({
 app.use(cors());
 app.use(express.json());
 
+const verifyFirebaseToken = (req, res, next) => {
+  const authorization = req.headers.authorization;
+  console.log(authorization);
+  next();
+};
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@sohebcluster.mbyuxfx.mongodb.net/?appName=SohebCluster`;
 
 const client = new MongoClient(uri, {
