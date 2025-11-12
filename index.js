@@ -96,10 +96,66 @@ async function run() {
     });
 
     //foodRequests related apis
+    app.get("/food-requests/:foodId", async (req, res) => {
+      const { foodId } = req.params;
+      const userEmail = req.query.email; // current logged-in user email
+
+      // first: find the food to verify the owner
+      const food = await foodsCollection.findOne({ _id: new ObjectId(foodId) });
+
+      if (!food) {
+        return res.status(404).send({ message: "Food not found" });
+      }
+
+      // check owner
+      if (food.donorEmail !== userEmail) {
+        return res.status(403).send({ message: "Unauthorized Access!" });
+      }
+
+      // if owner matched, get requests
+      const requests = await foodRequestsCollection
+        .find({ foodId: foodId })
+        .toArray();
+
+      res.send(requests);
+    });
+
     app.post("/foodRequests", (req, res) => {
       const newRequest = req.body;
       const result = foodRequestsCollection.insertOne(newRequest);
       res.send(result);
+    });
+
+    //accept req
+    app.patch("/food-requests/accept/:id", async (req, res) => {
+      const id = req.params.id;
+      const { foodId } = req.body;
+
+      // update request status
+      await foodRequestsCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { status: "accepted" } }
+      );
+
+      // update food status
+      await foodsCollection.updateOne(
+        { _id: new ObjectId(foodId) },
+        { $set: { food_status: "Donated" } }
+      );
+
+      res.send({ success: true });
+    });
+
+    //reject req
+    app.patch("/food-requests/reject/:id", async (req, res) => {
+      const id = req.params.id;
+
+      await foodRequestsCollection.updateOne(
+        { _id: new ObjectId(id) },
+        { $set: { status: "rejected" } }
+      );
+
+      res.send({ success: true });
     });
 
     await client.db("admin").command({ ping: 1 });
@@ -107,7 +163,6 @@ async function run() {
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
   } finally {
-    // await client.close();
   }
 }
 run().catch(console.dir);
