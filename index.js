@@ -2,8 +2,15 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
+var admin = require("firebase-admin");
 const app = express();
 const port = process.env.PORT || 3000;
+
+var serviceAccount = require("./plateshare-firebase-admin-key.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
 //middleware
 app.use(cors());
